@@ -1,0 +1,14 @@
+# Fusabi Community Package Registry
+[packages]
+
+[packages.json]
+version = "0.1.0"
+description = "JSON parsing and serialization combinators"
+path = "packages/json"
+license = "MIT"
+
+[packages.commander]
+version = "0.1.0"
+description = "A TUI file manager"
+path = "packages/commander"
+license = "MIT"

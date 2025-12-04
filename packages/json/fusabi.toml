@@ -1,0 +1,6 @@
+[package]
+name = "json"
+version = "0.1.0"
+description = "JSON parsing and serialization combinators"
+authors = ["Fusabi Community"]
+license = "MIT"

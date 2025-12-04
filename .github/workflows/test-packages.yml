@@ -1,0 +1,56 @@
+name: Test Packages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-packages:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action@stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Fusabi
+        run: cargo install --git https://github.com/fusabi-lang/fusabi
+
+      - name: Test packages
+        run: |
+          for pkg in packages/*; do
+            if [ -d "$pkg" ]; then
+              echo "::group::Testing $pkg"
+              pkg_name=$(basename "$pkg")
+              
+              # Check for main.fsx (executable packages)
+              if [ -f "$pkg/src/main.fsx" ]; then
+                echo "Running $pkg_name (main.fsx)..."
+                fus run "$pkg/src/main.fsx" || exit 1
+              # Check for lib.fsx (library packages)
+              elif [ -f "$pkg/src/lib.fsx" ]; then
+                echo "Checking $pkg_name (lib.fsx)..."
+                fus check "$pkg/src/lib.fsx" || exit 1
+              else
+                echo "Warning: No entry point found for $pkg_name"
+              fi
+              
+              echo "::endgroup::"
+            fi
+          done
