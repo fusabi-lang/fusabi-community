@@ -1,0 +1,217 @@
+name: Documentation Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'packages/*/README.md'
+      - 'README.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'packages/*/README.md'
+      - 'README.md'
+
+jobs:
+  validate-structure:
+    name: Validate Documentation Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required documentation files
+        run: |
+          echo "Checking for required documentation files..."
+
+          required_files=(
+            "README.md"
+            "docs/STRUCTURE.md"
+            "docs/RELEASE.md"
+            "docs/versions/vNEXT/README.md"
+            "docs/versions/vNEXT/PACKAGES.md"
+            "docs/versions/vNEXT/CAPABILITIES.md"
+          )
+
+          missing=0
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Missing required file: $file"
+              missing=$((missing + 1))
+            else
+              echo "OK: $file"
+            fi
+          done
+
+          if [ $missing -gt 0 ]; then
+            echo "ERROR: $missing required documentation files are missing"
+            exit 1
+          fi
+
+          echo "All required documentation files present"
+
+      - name: Check package documentation
+        run: |
+          echo "Checking package documentation..."
+
+          for pkg in packages/*; do
+            if [ -d "$pkg" ]; then
+              pkg_name=$(basename "$pkg")
+
+              # Check for README
+              if [ ! -f "$pkg/README.md" ]; then
+                echo "WARNING: Missing README.md in $pkg_name"
+              fi
+
+              # Check for fusabi.toml
+              if [ ! -f "$pkg/fusabi.toml" ]; then
+                echo "ERROR: Missing fusabi.toml in $pkg_name"
+                exit 1
+              fi
+            fi
+          done
+
+          echo "Package documentation check complete"
+
+      - name: Check for archive/legacy content
+        run: |
+          echo "Checking for archive or legacy directories..."
+
+          if [ -d "archive" ] || [ -d "docs/archive" ]; then
+            echo "ERROR: Archive directories should be removed"
+            exit 1
+          fi
+
+          if [ -d "legacy" ] || [ -d "docs/legacy" ]; then
+            echo "ERROR: Legacy directories should be removed"
+            exit 1
+          fi
+
+          echo "No archive or legacy directories found"
+
+      - name: Check for AI prompts and notes
+        run: |
+          echo "Checking for AI prompts and development notes..."
+
+          # Check for common AI prompt file patterns
+          if find . -type f \( -name "*prompt*.md" -o -name "*ai-*.md" -o -name "*notes*.md" \) -not -path "./.git/*" | grep -q .; then
+            echo "WARNING: Found AI prompt or notes files:"
+            find . -type f \( -name "*prompt*.md" -o -name "*ai-*.md" -o -name "*notes*.md" \) -not -path "./.git/*"
+            echo "Consider removing these files or renaming them if they contain user-facing documentation"
+          else
+            echo "No AI prompt files found"
+          fi
+
+  validate-markdown:
+    name: Validate Markdown Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Lint Markdown files
+        run: |
+          # Create markdownlint config
+          cat > .markdownlint.json <<EOF
+          {
+            "default": true,
+            "MD013": false,
+            "MD033": false,
+            "MD041": false
+          }
+          EOF
+
+          # Lint all markdown files
+          markdownlint '**/*.md' --ignore node_modules --ignore .git || true
+
+          echo "Markdown linting complete (warnings only)"
+
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check internal links
+        run: |
+          echo "Checking for broken internal links..."
+
+          # Simple check for common broken link patterns
+          broken=0
+
+          # Check for links to non-existent files
+          for md_file in $(find . -name "*.md" -not -path "./.git/*"); do
+            echo "Checking links in $md_file..."
+
+            # Extract markdown links [text](path)
+            grep -oP '\[.*?\]\(\K[^)]+' "$md_file" | while read -r link; do
+              # Skip external URLs
+              if [[ "$link" =~ ^https?:// ]]; then
+                continue
+              fi
+
+              # Skip anchors
+              if [[ "$link" =~ ^# ]]; then
+                continue
+              fi
+
+              # Resolve relative path
+              dir=$(dirname "$md_file")
+              target="$dir/$link"
+
+              # Remove anchor if present
+              target="${target%%#*}"
+
+              if [ ! -f "$target" ] && [ ! -d "$target" ]; then
+                echo "WARNING: Broken link in $md_file: $link -> $target"
+              fi
+            done
+          done
+
+          echo "Link validation complete"
+
+  validate-capabilities:
+    name: Validate Capability Schemas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install TOML validator
+        run: |
+          cargo install --locked toml-cli 2>/dev/null || echo "TOML CLI installation skipped"
+
+      - name: Validate capability metadata
+        run: |
+          echo "Validating capability metadata in package manifests..."
+
+          for pkg in packages/*/fusabi.toml; do
+            if [ -f "$pkg" ]; then
+              echo "Checking $pkg..."
+
+              # Check for capabilities section if using toml cli
+              if command -v toml &> /dev/null; then
+                if toml get "$pkg" capabilities 2>/dev/null; then
+                  echo "Capabilities section found in $pkg"
+                  # Could add more detailed schema validation here
+                fi
+              fi
+            fi
+          done
+
+          echo "Capability validation complete"

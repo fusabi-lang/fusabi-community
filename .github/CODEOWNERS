@@ -1,0 +1,39 @@
+# Fusabi Community Code Owners
+#
+# This file defines code ownership for the fusabi-community repository.
+# Code owners are automatically requested for review when someone opens
+# a pull request that modifies files they own.
+#
+# For more information, see:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners - fallback for everything not matched below
+* @fusabi-lang/maintainers
+
+# Documentation
+/docs/ @fusabi-lang/maintainers @fusabi-lang/docs-team
+/README.md @fusabi-lang/maintainers @fusabi-lang/docs-team
+/docs/RELEASE.md @fusabi-lang/maintainers
+/docs/STRUCTURE.md @fusabi-lang/maintainers
+
+# Registry and package index
+/registry/ @fusabi-lang/maintainers @fusabi-lang/registry-team
+/registry/index.toml @fusabi-lang/maintainers
+
+# CI/CD workflows
+/.github/workflows/ @fusabi-lang/maintainers @fusabi-lang/ci-team
+/.github/workflows/release.yml @fusabi-lang/maintainers
+
+# Package metadata files
+fusabi.toml @fusabi-lang/maintainers @fusabi-lang/pkg-reviewers
+
+# Individual packages
+/packages/json/ @fusabi-lang/pkg-json
+/packages/commander/ @fusabi-lang/pkg-commander
+
+# Tools and scripts
+/tools/ @fusabi-lang/maintainers
+
+# Security-sensitive files
+/.github/CODEOWNERS @fusabi-lang/maintainers
+/.github/workflows/release.yml @fusabi-lang/security-team
