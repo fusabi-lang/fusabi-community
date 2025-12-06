@@ -1,14 +1,42 @@
 # Fusabi Community Package Registry
+#
+# This registry provides a centralized index of community-maintained
+# packages for the Fusabi programming language.
+#
+# Format Version: 1.0.0
+# Last Updated: 2025-12-05
+
+[registry]
+version = "1.0.0"
+schema_version = "1.0.0"
+
 [packages]
+# Available packages with semantic versioning
 
 [packages.json]
 version = "0.1.0"
 description = "JSON parsing and serialization combinators"
 path = "packages/json"
 license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/json"
+category = "utilities"
+tags = ["json", "parsing", "serialization"]
+requires_capabilities = []
+compatible_runtimes = ["scarab", "hibana", "fusabi-plugin-runtime"]
+checksum = ""  # To be filled on release
+tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/json.tar.gz"
 
 [packages.commander]
 version = "0.1.0"
 description = "A TUI file manager"
 path = "packages/commander"
 license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/commander"
+category = "terminal-ui"
+tags = ["tui", "file-manager", "terminal"]
+requires_capabilities = ["stdio", "filesystem", "tui"]
+compatible_runtimes = ["scarab", "fusabi-plugin-runtime"]
+checksum = ""  # To be filled on release
+tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/commander.tar.gz"

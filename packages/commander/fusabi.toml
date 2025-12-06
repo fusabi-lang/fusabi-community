@@ -4,3 +4,29 @@ version = "0.1.0"
 description = "A TUI file manager"
 authors = ["Fusabi Community"]
 license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/commander"
+
+[dependencies]
+# Uses fusabi-stdlib-ext for file system operations
+fusabi-stdlib-ext = { version = "0.1" }
+
+[capabilities]
+# TUI application requiring filesystem and terminal access
+requires = ["stdio", "filesystem", "tui"]
+optional = []
+compatible_with = ["scarab", "fusabi-plugin-runtime"]
+
+[[capabilities.permissions]]
+type = "read"
+path = "/"
+description = "Browse file system"
+
+[[capabilities.permissions]]
+type = "write"
+path = "/home"
+description = "Edit and manage files in accessible directories"
+
+[capabilities.metadata]
+category = "terminal-ui"
+tags = ["tui", "file-manager", "terminal"]

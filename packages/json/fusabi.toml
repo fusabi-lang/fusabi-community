@@ -4,3 +4,19 @@ version = "0.1.0"
 description = "JSON parsing and serialization combinators"
 authors = ["Fusabi Community"]
 license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/json"
+
+[dependencies]
+# Uses fusabi-stdlib-ext for enhanced functionality
+fusabi-stdlib-ext = { version = "0.1", optional = true }
+
+[capabilities]
+# Pure library package with no runtime requirements
+requires = []
+optional = []
+compatible_with = ["scarab", "hibana", "fusabi-plugin-runtime"]
+
+[capabilities.metadata]
+category = "utilities"
+tags = ["json", "parsing", "serialization"]

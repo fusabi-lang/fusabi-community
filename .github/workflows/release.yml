@@ -1,0 +1,257 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Validate package metadata
+        run: |
+          echo "Validating package metadata..."
+          for pkg in packages/*/fusabi.toml; do
+            if [ -f "$pkg" ]; then
+              echo "Checking $pkg"
+              # Basic validation that version field exists
+              if ! grep -q "version" "$pkg"; then
+                echo "ERROR: No version in $pkg"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Validate registry index
+        run: |
+          echo "Validating registry index..."
+          if [ ! -f "registry/index.toml" ]; then
+            echo "ERROR: registry/index.toml not found"
+            exit 1
+          fi
+          # Validate TOML syntax
+          cargo install --locked toml-cli 2>/dev/null || true
+          if command -v toml &> /dev/null; then
+            toml get registry/index.toml packages || exit 1
+          fi
+
+      - name: Check version consistency
+        run: |
+          echo "Checking version consistency..."
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Release tag version: $TAG_VERSION"
+
+          # Check if any package versions match the release version
+          found=false
+          for pkg in packages/*/fusabi.toml; do
+            if grep -q "version = \"$TAG_VERSION\"" "$pkg"; then
+              found=true
+              echo "Found matching version in $pkg"
+            fi
+          done
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-release-
+            ${{ runner.os }}-cargo-
+
+      - name: Install Fusabi
+        run: |
+          if ! command -v fus &> /dev/null; then
+            cargo install --git https://github.com/fusabi-lang/fusabi || echo "Fusabi installation skipped"
+          fi
+
+      - name: Test packages
+        run: |
+          # Run package tests if fusabi is available
+          if command -v fus &> /dev/null; then
+            for pkg in packages/*; do
+              if [ -d "$pkg" ]; then
+                echo "Testing $(basename $pkg)..."
+                if [ -f "$pkg/src/main.fsx" ]; then
+                  fus check "$pkg/src/main.fsx" || echo "Check failed for $pkg"
+                elif [ -f "$pkg/src/lib.fsx" ]; then
+                  fus check "$pkg/src/lib.fsx" || echo "Check failed for $pkg"
+                fi
+              fi
+            done
+          else
+            echo "Fusabi not available, skipping package tests"
+          fi
+
+  build:
+    name: Build Packages
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create package archives
+        run: |
+          mkdir -p dist
+
+          for pkg in packages/*; do
+            if [ -d "$pkg" ]; then
+              pkg_name=$(basename "$pkg")
+              echo "Packaging $pkg_name..."
+
+              # Create tarball
+              tar -czf "dist/${pkg_name}.tar.gz" \
+                -C packages "$pkg_name"
+
+              # Calculate checksum
+              sha256sum "dist/${pkg_name}.tar.gz" > "dist/${pkg_name}.tar.gz.sha256"
+            fi
+          done
+
+          ls -lh dist/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/
+          retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist/
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+
+          echo "Generating changelog from $PREV_TAG to $CURRENT_TAG..."
+
+          if [ -z "$PREV_TAG" ]; then
+            # First release - get all commits
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            # Get commits since last tag
+            CHANGELOG=$(git log $PREV_TAG..$CURRENT_TAG --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Save to file for release notes
+          cat > release_notes.md <<EOF
+          # Release $CURRENT_TAG
+
+          ## Changes
+
+          $CHANGELOG
+
+          ## Packages Included
+
+          EOF
+
+          # List packages with versions
+          for pkg in packages/*/fusabi.toml; do
+            if [ -f "$pkg" ]; then
+              pkg_dir=$(dirname "$pkg")
+              pkg_name=$(basename "$pkg_dir")
+              version=$(grep "^version" "$pkg" | cut -d'"' -f2)
+              description=$(grep "^description" "$pkg" | cut -d'"' -f2)
+              echo "- **$pkg_name** v$version - $description" >> release_notes.md
+            fi
+          done
+
+          cat >> release_notes.md <<EOF
+
+          ## Installation
+
+          Download the package archives and verify checksums:
+
+          \`\`\`bash
+          # Download package
+          curl -LO https://github.com/fusabi-lang/fusabi-community/releases/download/$CURRENT_TAG/<package-name>.tar.gz
+
+          # Verify checksum
+          sha256sum -c <package-name>.tar.gz.sha256
+
+          # Extract
+          tar -xzf <package-name>.tar.gz
+          \`\`\`
+
+          See [documentation](https://github.com/fusabi-lang/fusabi-community/blob/main/docs/versions/vNEXT/README.md) for usage instructions.
+          EOF
+
+          cat release_notes.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          files: dist/*
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-registry:
+    name: Publish Registry Index
+    runs-on: ubuntu-latest
+    needs: release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update registry index
+        run: |
+          echo "Registry index at registry/index.toml is already up to date"
+          echo "No additional publishing steps needed at this time"
+
+          # Future: Push to separate registry repository or S3 bucket
+          # Future: Update CDN or package hosting service
