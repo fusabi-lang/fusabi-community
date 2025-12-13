@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/fusabi-provider-json-schema",
+    "crates/fusabi-provider-kubernetes",
+    "crates/fusabi-provider-opentelemetry",
+    "crates/fusabi-provider-graphql",
+    "crates/fusabi-provider-env-config",
+]
+resolver = "2"
