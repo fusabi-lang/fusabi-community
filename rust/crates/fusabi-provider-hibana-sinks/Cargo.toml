@@ -1,0 +1,13 @@
+[package]
+name = "fusabi-provider-hibana-sinks"
+version = "0.1.0"
+edition = "2021"
+description = "Hibana Sinks type provider for Fusabi"
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+
+[dependencies]
+fusabi-type-providers = { git = "https://github.com/fusabi-lang/fusabi", branch = "add-type-providers-crate" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
