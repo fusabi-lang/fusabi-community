@@ -4,7 +4,7 @@
 # packages for the Fusabi programming language.
 #
 # Format Version: 1.0.0
-# Last Updated: 2025-12-05
+# Last Updated: 2025-12-16
 
 [registry]
 version = "1.0.0"
@@ -40,3 +40,17 @@ requires_capabilities = ["stdio", "filesystem", "tui"]
 compatible_runtimes = ["scarab", "fusabi-plugin-runtime"]
 checksum = ""  # To be filled on release
 tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/commander.tar.gz"
+
+[packages.phage]
+version = "0.1.0"
+description = "Phage AI context injection and status bar plugin for Scarab"
+path = "packages/phage"
+license = "MIT"
+repository = "https://github.com/raibid-labs/scarab"
+homepage = "https://github.com/raibid-labs/scarab/tree/main/plugins/phage"
+category = "mcp-ai"
+tags = ["ai", "context", "status-bar", "mcp", "phage", "scarab"]
+requires_capabilities = ["network", "filesystem", "status_bar", "navigation"]
+compatible_runtimes = ["scarab"]
+checksum = ""  # To be filled on release
+tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/phage.tar.gz"

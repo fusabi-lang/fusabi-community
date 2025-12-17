@@ -1,0 +1,26 @@
+[package]
+name = "phage"
+version = "0.1.0"
+authors = ["Raibid Labs <team@raibid-labs.com>"]
+description = "Phage AI context injection and status bar plugin for Scarab terminal"
+license = "MIT"
+repository = "https://github.com/raibid-labs/scarab"
+
+[capabilities]
+requires = ["network", "filesystem", "status_bar", "navigation"]
+compatible_with = ["scarab", "fusabi-plugin-runtime"]
+
+[scarab]
+entry = "src/lib.fsx"
+type = "script"
+min_version = "0.3.0"
+
+[scarab.menu]
+dock = true
+dock_priority = 50
+icon = ""
+
+[scarab.status_bar]
+enabled = true
+side = "right"
+priority = 100
