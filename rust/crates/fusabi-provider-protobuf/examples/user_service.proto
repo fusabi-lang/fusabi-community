@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package user.v1;
+
+// User status enumeration
+enum UserStatus {
+    UNKNOWN = 0;
+    ACTIVE = 1;
+    INACTIVE = 2;
+    SUSPENDED = 3;
+}
+
+// User profile message
+message User {
+    string id = 1;
+    string email = 2;
+    string name = 3;
+    UserStatus status = 4;
+    repeated string roles = 5;
+    map<string, string> metadata = 6;
+
+    // Nested address message
+    message Address {
+        string street = 1;
+        string city = 2;
+        string state = 3;
+        string zip_code = 4;
+    }
+
+    optional Address address = 7;
+}
+
+// User service definition
+service UserService {
+    rpc GetUser(GetUserRequest) returns (User);
+    rpc CreateUser(CreateUserRequest) returns (User);
+    rpc ListUsers(ListUsersRequest) returns (stream User);
+}
+
+message GetUserRequest {
+    string user_id = 1;
+}
+
+message CreateUserRequest {
+    string email = 1;
+    string name = 2;
+}
+
+message ListUsersRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+}

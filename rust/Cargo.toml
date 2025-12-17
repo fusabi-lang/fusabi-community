@@ -1,0 +1,17 @@
+[workspace]
+members = [
+    "crates/fusabi-provider-json-schema",
+    "crates/fusabi-provider-kubernetes",
+    "crates/fusabi-provider-opentelemetry",
+    "crates/fusabi-provider-graphql",
+    "crates/fusabi-provider-env-config",
+    "crates/fusabi-provider-hibana-sinks",
+    "crates/fusabi-provider-hibana-sources",
+    "crates/fusabi-provider-mcp",
+    "crates/fusabi-provider-obi",
+    "crates/fusabi-provider-protobuf",
+    "crates/fusabi-provider-regex",
+    "crates/fusabi-provider-sql",
+    "crates/fusabi-provider-toml",
+]
+resolver = "2"

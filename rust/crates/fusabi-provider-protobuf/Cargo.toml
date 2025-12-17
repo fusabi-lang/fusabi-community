@@ -1,0 +1,10 @@
+[package]
+name = "fusabi-provider-protobuf"
+version = "0.1.0"
+edition = "2021"
+description = "Protobuf type provider for Fusabi"
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+
+[dependencies]
+fusabi-type-providers = { git = "https://github.com/fusabi-lang/fusabi", branch = "add-type-providers-crate" }
