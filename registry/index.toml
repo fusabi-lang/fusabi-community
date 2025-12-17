@@ -10,47 +10,25 @@
 version = "1.0.0"
 schema_version = "1.0.0"
 
-[packages]
 # Available packages with semantic versioning
 
-[packages.json]
+[[packages]]
+name = "json"
 version = "0.1.0"
 description = "JSON parsing and serialization combinators"
-path = "packages/json"
-license = "MIT"
 repository = "https://github.com/fusabi-lang/fusabi-community"
-homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/json"
-category = "utilities"
-tags = ["json", "parsing", "serialization"]
-requires_capabilities = []
-compatible_runtimes = ["scarab", "hibana", "fusabi-plugin-runtime"]
-checksum = ""  # To be filled on release
-tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/json.tar.gz"
+license = "MIT"
 
-[packages.commander]
+[[packages]]
+name = "commander"
 version = "0.1.0"
 description = "A TUI file manager"
-path = "packages/commander"
-license = "MIT"
 repository = "https://github.com/fusabi-lang/fusabi-community"
-homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/commander"
-category = "terminal-ui"
-tags = ["tui", "file-manager", "terminal"]
-requires_capabilities = ["stdio", "filesystem", "tui"]
-compatible_runtimes = ["scarab", "fusabi-plugin-runtime"]
-checksum = ""  # To be filled on release
-tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/commander.tar.gz"
+license = "MIT"
 
-[packages.phage]
+[[packages]]
+name = "phage"
 version = "0.1.0"
 description = "Phage AI context injection and status bar plugin for Scarab"
-path = "packages/phage"
+repository = "https://github.com/fusabi-lang/fusabi-community"
 license = "MIT"
-repository = "https://github.com/raibid-labs/scarab"
-homepage = "https://github.com/raibid-labs/scarab/tree/main/plugins/phage"
-category = "mcp-ai"
-tags = ["ai", "context", "status-bar", "mcp", "phage", "scarab"]
-requires_capabilities = ["network", "filesystem", "status_bar", "navigation"]
-compatible_runtimes = ["scarab"]
-checksum = ""  # To be filled on release
-tarball_url = "https://github.com/fusabi-lang/fusabi-community/releases/download/v{version}/phage.tar.gz"
