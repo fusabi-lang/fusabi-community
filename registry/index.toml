@@ -28,7 +28,7 @@ license = "MIT"
 
 [[packages]]
 name = "phage"
-version = "0.1.0"
+version = "0.2.0"
 description = "Phage AI context injection and status bar plugin for Scarab"
 repository = "https://github.com/fusabi-lang/fusabi-community"
 license = "MIT"

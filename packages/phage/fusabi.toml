@@ -1,6 +1,6 @@
 [package]
 name = "phage"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Raibid Labs <team@raibid-labs.com>"]
 description = "Phage AI context injection and status bar plugin for Scarab terminal"
 license = "MIT"
