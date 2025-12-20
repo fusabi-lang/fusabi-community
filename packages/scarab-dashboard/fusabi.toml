@@ -1,0 +1,20 @@
+[package]
+name = "scarab-dashboard"
+version = "0.1.0"
+description = "Terminal status bar dashboard for Scarab"
+authors = ["Raibid Labs"]
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/scarab-dashboard"
+
+[dependencies]
+fusabi-dashboards = { version = "0.1", git = "https://github.com/fusabi-lang/fusabi-dashboards" }
+
+[capabilities]
+requires = ["tui"]
+optional = []
+compatible_with = ["scarab"]
+
+[capabilities.metadata]
+category = "dashboards"
+tags = ["terminal", "status-bar", "git", "scarab"]

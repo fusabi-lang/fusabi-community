@@ -1,0 +1,20 @@
+[package]
+name = "sigilforge-dashboard"
+version = "0.1.0"
+description = "Symbol management dashboard for Sigilforge"
+authors = ["Raibid Labs"]
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/sigilforge-dashboard"
+
+[dependencies]
+fusabi-dashboards = { version = "0.1", git = "https://github.com/fusabi-lang/fusabi-dashboards" }
+
+[capabilities]
+requires = ["tui"]
+optional = []
+compatible_with = ["sigilforge", "hibana"]
+
+[capabilities.metadata]
+category = "dashboards"
+tags = ["symbols", "sigilforge", "management", "visualization"]

@@ -1,0 +1,20 @@
+[package]
+name = "phage-dashboard"
+version = "0.1.0"
+description = "Context visualization dashboard for Phage memory system"
+authors = ["Raibid Labs"]
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/phage-dashboard"
+
+[dependencies]
+fusabi-dashboards = { version = "0.1", git = "https://github.com/fusabi-lang/fusabi-dashboards" }
+
+[capabilities]
+requires = ["tui"]
+optional = []
+compatible_with = ["phage", "hibana"]
+
+[capabilities.metadata]
+category = "dashboards"
+tags = ["context", "memory", "phage", "visualization"]

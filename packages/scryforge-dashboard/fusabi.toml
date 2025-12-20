@@ -1,0 +1,20 @@
+[package]
+name = "scryforge-dashboard"
+version = "0.1.0"
+description = "Code generation dashboard for Scryforge"
+authors = ["Raibid Labs"]
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/scryforge-dashboard"
+
+[dependencies]
+fusabi-dashboards = { version = "0.1", git = "https://github.com/fusabi-lang/fusabi-dashboards" }
+
+[capabilities]
+requires = ["tui"]
+optional = []
+compatible_with = ["scryforge", "hibana"]
+
+[capabilities.metadata]
+category = "dashboards"
+tags = ["codegen", "scryforge", "generation", "visualization"]

@@ -1,0 +1,20 @@
+[package]
+name = "hibana-dashboard"
+version = "0.1.0"
+description = "GPU metrics dashboard for Hibana monitoring"
+authors = ["Raibid Labs"]
+license = "MIT"
+repository = "https://github.com/fusabi-lang/fusabi-community"
+homepage = "https://github.com/fusabi-lang/fusabi-community/tree/main/packages/hibana-dashboard"
+
+[dependencies]
+fusabi-dashboards = { version = "0.1", git = "https://github.com/fusabi-lang/fusabi-dashboards" }
+
+[capabilities]
+requires = ["tui"]
+optional = ["nvml"]
+compatible_with = ["hibana", "scarab"]
+
+[capabilities.metadata]
+category = "dashboards"
+tags = ["gpu", "monitoring", "nvidia", "metrics", "hibana"]
