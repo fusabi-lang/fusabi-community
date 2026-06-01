@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Install Fusabi
-        run: cargo install --git https://github.com/fusabi-lang/fusabi fusabi
+        run: cargo install --git https://github.com/fusabi-lang/fusabi fusabi --force
 
       - name: Test packages
         run: |
