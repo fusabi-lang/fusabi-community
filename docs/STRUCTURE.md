@@ -108,7 +108,7 @@ When adding documentation:
 
 1. Place new guides in `docs/versions/vNEXT/`
 2. Update PACKAGES.md when adding new packages
-3. Run `make docs-check` locally before committing
+3. Documentation is validated automatically by `.github/workflows/docs-check.yml` on every PR
 4. Keep documentation synchronized with code
 
 ## Archive Policy

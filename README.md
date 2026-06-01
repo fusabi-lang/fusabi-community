@@ -205,8 +205,8 @@ See [docs/RELEASE.md](./docs/RELEASE.md) for detailed release procedures.
 ### Run Package Tests
 
 ```bash
-# Test all packages
-make test
+# Test all packages (same logic CI runs in .github/workflows/test-packages.yml)
+for pkg in packages/*; do fus check "$pkg/src/lib.fsx"; done
 
 # Test specific package
 fus test packages/json/src/lib.fsx
