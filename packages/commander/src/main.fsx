@@ -17,23 +17,23 @@ let initialModel = {
 // ============================================================================
 
 let parseFiles stdout =
-    let lines = String.split "\n" stdout
-    let nonEmpty = List.filter (fun line -> String.length line > 0) lines
+    let lines = String.split "\n" stdout in
+    let nonEmpty = List.filter (fun line -> String.length line > 0) lines in
     // Skip the first line (total count from ls -l)
     match List.tail nonEmpty with
     | Some tail -> tail
     | None -> []
 
 let getFileName line =
-    let parts = String.split " " line
-    let filtered = List.filter (fun p -> String.length p > 0) parts
+    let parts = String.split " " line in
+    let filtered = List.filter (fun p -> String.length p > 0) parts in
     // Get the last part (filename)
     match List.nth 8 filtered with
     | Some name -> name
     | None -> line
 
 let loadDirectory dir =
-    let result = Process.runShell (sprintf "ls -la \"%s\"" dir)
+    let result = Process.runShell (sprintf "ls -la \"%s\"" dir) in
     if result.exitCode == 0 then
         parseFiles result.stdout
     else
@@ -52,28 +52,29 @@ let clearScreen () =
     TerminalControl.sendText "\x1b[2J\x1b[H"
 
 let renderHeader model =
-    printfn (sprintf "=== Commander TUI ===")
-    printfn (sprintf "Directory: %s" model.currentDir)
+    let _ = printfn (sprintf "=== Commander TUI ===") in
+    let _ = printfn (sprintf "Directory: %s" model.currentDir) in
     printfn (sprintf "")
 
 let renderFile index selected fileName =
-    let marker = if index == selected then "> " else "  "
+    let marker = if index == selected then "> " else "  " in
     printfn (sprintf "%s%s" marker fileName)
 
 let renderFiles model =
     let renderWithIndex = fun (index, fileName) ->
         renderFile index model.selectedIndex fileName
-    let indexed = List.mapi (fun i f -> (i, f)) model.files
+    in
+    let indexed = List.mapi (fun i f -> (i, f)) model.files in
     List.iter renderWithIndex indexed
 
 let renderFooter () =
-    printfn (sprintf "")
+    let _ = printfn (sprintf "") in
     printfn (sprintf "Controls: j/k (navigate) | Enter (select) | q (quit)")
 
 let render model =
-    clearScreen ()
-    renderHeader model
-    renderFiles model
+    let _ = clearScreen () in
+    let _ = renderHeader model in
+    let _ = renderFiles model in
     renderFooter ()
 
 // ============================================================================
@@ -81,38 +82,38 @@ let render model =
 // ============================================================================
 
 let handleKeyDown model =
-    let maxIndex = List.length model.files - 1
-    let newIndex = clamp 0 maxIndex (model.selectedIndex + 1)
+    let maxIndex = List.length model.files - 1 in
+    let newIndex = clamp 0 maxIndex (model.selectedIndex + 1) in
     { model with selectedIndex = newIndex }
 
 let handleKeyUp model =
-    let maxIndex = List.length model.files - 1
-    let newIndex = clamp 0 maxIndex (model.selectedIndex - 1)
+    let maxIndex = List.length model.files - 1 in
+    let newIndex = clamp 0 maxIndex (model.selectedIndex - 1) in
     { model with selectedIndex = newIndex }
 
 let handleEnter model =
     match List.nth model.selectedIndex model.files with
     | Some selectedFile ->
-        let fileName = getFileName selectedFile
+        let fileName = getFileName selectedFile in
         let newPath =
             if fileName == "." then
                 model.currentDir
             else if fileName == ".." then
-                let result = Process.runShell (sprintf "cd \"%s\" && cd .. && pwd" model.currentDir)
+                let result = Process.runShell (sprintf "cd \"%s\" && cd .. && pwd" model.currentDir) in
                 if result.exitCode == 0 then
                     String.trim result.stdout
                 else
                     model.currentDir
             else
                 sprintf "%s/%s" model.currentDir fileName
-
+        in
         // Check if it's a directory
-        let checkResult = Process.runShell (sprintf "test -d \"%s\" && echo \"dir\"" newPath)
+        let checkResult = Process.runShell (sprintf "test -d \"%s\" && echo \"dir\"" newPath) in
         if String.contains "dir" checkResult.stdout then
-            let files = loadDirectory newPath
+            let files = loadDirectory newPath in
             { model with currentDir = newPath; files = files; selectedIndex = 0 }
         else
-            TerminalControl.showToast (sprintf "Not a directory: %s" fileName)
+            let _ = TerminalControl.showToast (sprintf "Not a directory: %s" fileName) in
             model
     | None -> model
 
@@ -134,11 +135,11 @@ let update event model =
 let rec eventLoop model =
     if model.running then
         // Render current state
-        render model
+        let _ = render model in
 
         // Get real user input
-        Console.write "Enter command (j/k/enter/q): "
-        let input = Console.readLine ()
+        let _ = Console.write "Enter command (j/k/enter/q): " in
+        let input = Console.readLine () in
 
         // Convert input to event name
         let eventName =
@@ -149,12 +150,12 @@ let rec eventLoop model =
             | "" -> "key:enter"   // Empty line = Enter
             | "q" -> "key:q"
             | other -> sprintf "key:%s" other
-
+        in
         // Update model and continue loop
-        let newModel = update eventName model
+        let newModel = update eventName model in
         eventLoop newModel
     else
-        printfn (sprintf "\nExiting Commander...")
+        let _ = printfn (sprintf "\nExiting Commander...") in
         model
 
 // ============================================================================
@@ -162,41 +163,41 @@ let rec eventLoop model =
 // ============================================================================
 
 let main () =
-    printfn (sprintf "Starting Commander TUI...")
-    printfn (sprintf "")
+    let _ = printfn (sprintf "Starting Commander TUI...") in
+    let _ = printfn (sprintf "") in
 
     // Get terminal size
-    let (cols, rows) = TerminalInfo.getTerminalSize ()
-    printfn (sprintf "Terminal size: %d cols x %d rows" cols rows)
+    let (cols, rows) = TerminalInfo.getTerminalSize () in
+    let _ = printfn (sprintf "Terminal size: %d cols x %d rows" cols rows) in
 
     // Get current directory
-    let cwd = Process.cwd ()
-    printfn (sprintf "Starting directory: %s" cwd)
-    printfn (sprintf "")
+    let cwd = Process.cwd () in
+    let _ = printfn (sprintf "Starting directory: %s" cwd) in
+    let _ = printfn (sprintf "") in
 
     // Load initial files
-    let files = loadDirectory cwd
-    let startModel = { initialModel with currentDir = cwd; files = files }
+    let files = loadDirectory cwd in
+    let startModel = { initialModel with currentDir = cwd; files = files } in
 
     // Register event handlers
-    let handlerJ = Events.on "key:j" (fun _ -> printfn (sprintf "Down pressed"))
-    let handlerK = Events.on "key:k" (fun _ -> printfn (sprintf "Up pressed"))
-    let handlerEnter = Events.on "key:enter" (fun _ -> printfn (sprintf "Enter pressed"))
-    let handlerQ = Events.on "key:q" (fun _ -> printfn (sprintf "Quit pressed"))
+    let handlerJ = Events.on "key:j" (fun _ -> printfn (sprintf "Down pressed")) in
+    let handlerK = Events.on "key:k" (fun _ -> printfn (sprintf "Up pressed")) in
+    let handlerEnter = Events.on "key:enter" (fun _ -> printfn (sprintf "Enter pressed")) in
+    let handlerQ = Events.on "key:q" (fun _ -> printfn (sprintf "Quit pressed")) in
 
-    printfn (sprintf "Event handlers registered: %d, %d, %d, %d" handlerJ handlerK handlerEnter handlerQ)
-    printfn (sprintf "")
+    let _ = printfn (sprintf "Event handlers registered: %d, %d, %d, %d" handlerJ handlerK handlerEnter handlerQ) in
+    let _ = printfn (sprintf "") in
 
     // Start event loop
-    let finalModel = eventLoop startModel
+    let finalModel = eventLoop startModel in
 
     // Cleanup event handlers
-    let _ = Events.off handlerJ
-    let _ = Events.off handlerK
-    let _ = Events.off handlerEnter
-    let _ = Events.off handlerQ
+    let _ = Events.off handlerJ in
+    let _ = Events.off handlerK in
+    let _ = Events.off handlerEnter in
+    let _ = Events.off handlerQ in
 
-    printfn (sprintf "Commander TUI exited")
+    let _ = printfn (sprintf "Commander TUI exited") in
     printfn (sprintf "Final directory: %s" finalModel.currentDir)
 
 // Run the application
